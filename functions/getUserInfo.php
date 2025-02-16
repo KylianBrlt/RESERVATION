@@ -12,7 +12,7 @@ function getUserInfo($email) {
     // Obtient une instance de PDO
     $pdo = getPDO();
     // Prépare la requête SQL pour récupérer les informations de l'utilisateur
-    $sql = "SELECT email FROM users WHERE email = :email";
+    $sql = "SELECT first_name, last_name, birth_date, address, phone, email FROM users WHERE email = :email";
     $stmt = $pdo->prepare($sql);
     // Exécute la requête avec le nom d'utilisateur fourni
     $stmt->execute(['email' => $email]);
