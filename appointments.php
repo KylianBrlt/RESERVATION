@@ -12,13 +12,13 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-// Handle cancellation
+// Gestion de l'annulation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel'])) {
     $result = cancelAppointment($_SESSION['email'], $_POST['appointment_id']);
     $message = $result['message'];
 }
 
-// Handle new appointment booking
+// Gestion d'une nouvelle réservation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule'])) {
     $date = $_POST['date'];
     $time = $_POST['time'];
@@ -26,21 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule'])) {
     $message = $result['message'];
 }
 
-// Get user's appointments
+// Récupération des rendez-vous de l'utilisateur
 $appointments = getUserAppointments($_SESSION['email']);
 ?>
 
 <main>
-    <h2>Manage Appointments</h2>
+    <h2>Gérer les rendez-vous</h2>
     <?php if (isset($message)): ?>
         <div class="<?php echo isset($result['success']) && $result['success'] ? 'success' : 'error' ?>">
             <?php echo $message; ?>
         </div>
     <?php endif; ?>
     
-    <!-- Schedule New Appointment Form -->
+    <!-- Formulaire de prise de rendez-vous -->
     <section class="schedule-appointment">
-        <h3>Schedule New Appointment</h3>
+        <h3>Prendre un nouveau rendez-vous</h3>
         <form method="POST" action="appointments.php">
             <div class="form-group">
                 <label for="date">Date:</label>
@@ -50,10 +50,10 @@ $appointments = getUserAppointments($_SESSION['email']);
             </div>
             
             <div class="form-group">
-                <label for="time">Time:</label>
+                <label for="time">Heure:</label>
                 <select id="time" name="time" required>
                     <?php
-                    // Morning slots (9:00 - 12:00)
+                    // Créneaux du matin (9h00 - 12h00)
                     $morning_start = new DateTime('09:00');
                     $morning_end = new DateTime('11:30');
                     $interval = new DateInterval('PT30M');
@@ -65,7 +65,7 @@ $appointments = getUserAppointments($_SESSION['email']);
                         $current->add($interval);
                     }
                     
-                    // Afternoon slots (13:00 - 17:00)
+                    // Créneaux de l'après-midi (13h00 - 17h00)
                     $afternoon_start = new DateTime('13:00');
                     $afternoon_end = new DateTime('17:00');
                     $current = clone $afternoon_start;
@@ -80,32 +80,32 @@ $appointments = getUserAppointments($_SESSION['email']);
             </div>
             
             <input type="hidden" name="schedule" value="1">
-            <button type="submit">Schedule Appointment</button>
+            <button type="submit">Réserver</button>
         </form>
     </section>
     
-    <!-- Existing Appointments List -->
+    <!-- Liste des rendez-vous existants -->
     <section class="appointment-list">
-        <h3>Your Appointments</h3>
+        <h3>Vos rendez-vous</h3>
         <?php if ($appointments): ?>
             <?php foreach ($appointments as $appointment): ?>
                 <div class="appointment-item">
                     <p>
                         Date: <?php echo htmlspecialchars($appointment['appointment_date']); ?><br>
-                        Time: <?php echo htmlspecialchars($appointment['appointment_time']); ?><br>
-                        Status: <?php echo htmlspecialchars($appointment['status']); ?>
+                        Heure: <?php echo htmlspecialchars($appointment['appointment_time']); ?><br>
+                        Statut: <?php echo htmlspecialchars($appointment['status']); ?>
                     </p>
                     <?php if ($appointment['status'] === 'scheduled'): ?>
-                        <form method="POST" action="appointments.php" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                        <form method="POST" action="appointments.php" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?');">
                             <input type="hidden" name="appointment_id" value="<?php echo $appointment['id']; ?>">
                             <input type="hidden" name="cancel" value="1">
-                            <button type="submit" class="cancel-button">Cancel Appointment</button>
+                            <button type="submit" class="cancel-button">Annuler le rendez-vous</button>
                         </form>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>No appointments found.</p>
+            <p>Aucun rendez-vous trouvé.</p>
         <?php endif; ?>
     </section>
 </main>

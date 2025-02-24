@@ -4,23 +4,23 @@ require_once 'getPDO.php';
 function updateUserInfo($currentEmail, $first_name, $last_name, $birth_date, $address, $phone, $newEmail) {
     $pdo = getPDO();
     
-    // Check if new email already exists (if email is being changed)
+    // Vérifier si le nouvel email existe déjà (si l'email est modifié)
     if ($currentEmail !== $newEmail) {
         $stmt = $pdo->prepare("SELECT email FROM users WHERE email = :email");
         $stmt->execute(['email' => $newEmail]);
         if ($stmt->fetch()) {
-            return ['success' => false, 'message' => 'Email already exists'];
+            return ['success' => false, 'message' => 'Cette adresse email existe déjà'];
         }
     }
     
-    // Check if new phone already exists (if phone is being changed)
+    // Vérifier si le nouveau numéro de téléphone existe déjà (si le téléphone est modifié)
     $stmt = $pdo->prepare("SELECT phone FROM users WHERE phone = :phone AND email != :email");
     $stmt->execute(['phone' => $phone, 'email' => $currentEmail]);
     if ($stmt->fetch()) {
-        return ['success' => false, 'message' => 'Phone number already exists'];
+        return ['success' => false, 'message' => 'Ce numéro de téléphone existe déjà'];
     }
 
-    // Update user information
+    // Mettre à jour les informations utilisateur
     $sql = "UPDATE users SET 
             first_name = :first_name,
             last_name = :last_name,
@@ -42,8 +42,8 @@ function updateUserInfo($currentEmail, $first_name, $last_name, $birth_date, $ad
     ]);
     
     if ($result) {
-        return ['success' => true, 'message' => 'Profile updated successfully'];
+        return ['success' => true, 'message' => 'Profil mis à jour avec succès'];
     }
-    return ['success' => false, 'message' => 'Error updating profile'];
+    return ['success' => false, 'message' => 'Erreur lors de la mise à jour du profil'];
 }
 ?>

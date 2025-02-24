@@ -9,7 +9,7 @@ require_once 'getPDO.php';
 function createAppointment($user_email, $date, $time) {
     $pdo = getPDO();
     
-    // Check if slot is available
+    // Vérifier si le créneau est disponible
     $stmt = $pdo->prepare("SELECT id FROM appointments 
                           WHERE appointment_date = :date 
                           AND appointment_time = :time 
@@ -17,15 +17,15 @@ function createAppointment($user_email, $date, $time) {
     $stmt->execute(['date' => $date, 'time' => $time]);
     
     if ($stmt->fetch()) {
-        return ['success' => false, 'message' => 'Time slot not available'];
+        return ['success' => false, 'message' => 'Ce créneau horaire n\'est pas disponible'];
     }
     
-    // Get user ID from email
+    // Récupérer l'ID de l'utilisateur à partir de son email
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
     $stmt->execute(['email' => $user_email]);
     $user = $stmt->fetch();
     
-    // Create appointment
+    // Créer le rendez-vous
     $stmt = $pdo->prepare("INSERT INTO appointments 
                           (user_id, appointment_date, appointment_time) 
                           VALUES (:user_id, :date, :time)");
@@ -37,13 +37,13 @@ function createAppointment($user_email, $date, $time) {
     ]);
     
     return ['success' => $result, 
-            'message' => $result ? 'Appointment scheduled' : 'Scheduling failed'];
+            'message' => $result ? 'Rendez-vous programmé avec succès' : 'Échec de la programmation'];
 }
 
 function cancelAppointment($user_email, $appointment_id) {
     $pdo = getPDO();
     
-    // Verify the appointment belongs to the user
+    // Vérifier si le rendez-vous appartient à l'utilisateur
     $stmt = $pdo->prepare("SELECT a.id FROM appointments a 
                           JOIN users u ON a.user_id = u.id 
                           WHERE u.email = :email AND a.id = :appointment_id 
@@ -54,10 +54,10 @@ function cancelAppointment($user_email, $appointment_id) {
     ]);
     
     if (!$stmt->fetch()) {
-        return ['success' => false, 'message' => 'Appointment not found'];
+        return ['success' => false, 'message' => 'Rendez-vous non trouvé'];
     }
     
-    // Update appointment status to cancelled
+    // Mettre à jour le statut du rendez-vous à "annulé"
     $stmt = $pdo->prepare("UPDATE appointments 
                           SET status = 'cancelled' 
                           WHERE id = :appointment_id");
@@ -66,13 +66,14 @@ function cancelAppointment($user_email, $appointment_id) {
     
     return [
         'success' => $result,
-        'message' => $result ? 'Appointment cancelled successfully' : 'Error cancelling appointment'
+        'message' => $result ? 'Rendez-vous annulé avec succès' : 'Erreur lors de l\'annulation'
     ];
 }
 
 function getUserAppointments($user_email) {
     $pdo = getPDO();
     
+    // Récupérer tous les rendez-vous de l'utilisateur
     $stmt = $pdo->prepare("SELECT a.* 
                           FROM appointments a 
                           JOIN users u ON a.user_id = u.id 

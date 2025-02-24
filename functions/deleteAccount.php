@@ -5,25 +5,25 @@ function deleteAccount($email) {
     $pdo = getPDO();
     
     try {
-        // Start transaction to ensure all related data is deleted
+        // Démarrer une transaction pour assurer la suppression de toutes les données associées
         $pdo->beginTransaction();
         
-        // Delete user account
+        // Supprimer le compte utilisateur
         $sql = "DELETE FROM users WHERE email = :email";
         $stmt = $pdo->prepare($sql);
         $result = $stmt->execute(['email' => $email]);
         
         if ($result) {
             $pdo->commit();
-            return ['success' => true, 'message' => 'Account deleted successfully'];
+            return ['success' => true, 'message' => 'Compte supprimé avec succès'];
         }
         
         $pdo->rollBack();
-        return ['success' => false, 'message' => 'Error deleting account'];
+        return ['success' => false, 'message' => 'Erreur lors de la suppression du compte'];
         
     } catch (PDOException $e) {
         $pdo->rollBack();
-        return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        return ['success' => false, 'message' => 'Erreur de base de données : ' . $e->getMessage()];
     }
 }
 ?>
