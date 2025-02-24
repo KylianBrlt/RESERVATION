@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 
 // Inclut l'en-tête de la page
-require 'header.php';
+require_once 'header.php';
 ?>
 
 <main>
@@ -17,5 +17,5 @@ require 'header.php';
 
 <?php
 // Inclut le pied de page de la page
-require 'footer.php';
+require_once 'footer.php';
 ?>
