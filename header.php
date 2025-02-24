@@ -24,6 +24,7 @@ session_start();
                 <!-- Si l'utilisateur est connecté, affiche les liens vers le profil et la déconnexion -->
                 <a href="profile.php">Profile</a> |
                 <a href="functions/logout.php">Logout</a> |
+                <a href="appointments.php">Appointments</a> |
                 <a href="contact.php">Contact</a>
             <?php else : ?>
                 <!-- Si l'utilisateur n'est pas connecté, affiche les liens vers la page d'accueil, de connexion et d'inscription -->

@@ -88,6 +88,21 @@ textarea {
     resize: vertical;
 }
 
+.appointment-list {
+    margin-top: 20px;
+    background: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.appointment-item {
+    background: var(--white);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+}
 
 h2 {
     color: var(--dark);
@@ -252,7 +267,13 @@ footer {
     background-color: #cc0000;
 }
 
-
+.schedule-appointment {
+    margin-bottom: 2rem;
+    padding: 20px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
 
 @media (max-width: 480px) {
     form {
