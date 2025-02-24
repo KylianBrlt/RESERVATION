@@ -44,12 +44,39 @@ $appointments = getUserAppointments($_SESSION['email']);
         <form method="POST" action="appointments.php">
             <div class="form-group">
                 <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required>
+                <input type="date" id="date" name="date" required 
+                       min="<?php echo date('Y-m-d'); ?>" 
+                       max="<?php echo date('Y-m-d', strtotime('+6 months')); ?>">
             </div>
             
             <div class="form-group">
                 <label for="time">Time:</label>
-                <input type="time" id="time" name="time" required>
+                <select id="time" name="time" required>
+                    <?php
+                    // Morning slots (9:00 - 12:00)
+                    $morning_start = new DateTime('09:00');
+                    $morning_end = new DateTime('11:30');
+                    $interval = new DateInterval('PT30M');
+                    $current = clone $morning_start;
+                    
+                    while ($current <= $morning_end) {
+                        $timeStr = $current->format('H:i');
+                        echo "<option value=\"$timeStr\">$timeStr</option>";
+                        $current->add($interval);
+                    }
+                    
+                    // Afternoon slots (13:00 - 17:00)
+                    $afternoon_start = new DateTime('13:00');
+                    $afternoon_end = new DateTime('17:00');
+                    $current = clone $afternoon_start;
+                    
+                    while ($current <= $afternoon_end) {
+                        $timeStr = $current->format('H:i');
+                        echo "<option value=\"$timeStr\">$timeStr</option>";
+                        $current->add($interval);
+                    }
+                    ?>
+                </select>
             </div>
             
             <input type="hidden" name="schedule" value="1">
