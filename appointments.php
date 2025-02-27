@@ -53,7 +53,7 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Section des créneaux disponibles (apparaît après avoir cliqué sur une date) -->
         <section id="available-slots">
-            <h3>Créneaux disponibles</h3>
+            <h3>Créneaux</h3>
             <div class="selected-date" id="selected-date"></div>
             <div id="slots-container"></div>
         </section>
@@ -116,7 +116,6 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 editable: false,
                 eventLimit: true,
                 selectable: true,
-                selectHelper: true,
                 minTime: '09:00:00',
                 maxTime: '17:00:00',
                 businessHours: {
