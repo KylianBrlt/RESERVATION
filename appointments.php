@@ -12,35 +12,36 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-// Gestion de l'annulation
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel'])) {
-    $result = cancelAppointment($_SESSION['email'], $_POST['appointment_id']);
+$message = '';
+
+// Gestion des actions POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['cancel'])) {
+        $result = cancelAppointment($_SESSION['email'], $_POST['appointment_id']);
+    } elseif (isset($_POST['schedule'])) {
+        $result = createAppointment($_SESSION['email'], $_POST['date'], $_POST['time']);
+    }
     $message = $result['message'];
 }
 
-// Gestion d'une nouvelle réservation
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule'])) {
-    $date = $_POST['date'];
-    $time = $_POST['time'];
-    $result = createAppointment($_SESSION['email'], $date, $time);
-    $message = $result['message'];
-}
-
-// Récupération des rendez-vous de l'utilisateur
+// Récupération des rendez-vous
 $appointments = getUserAppointments($_SESSION['email']);
+$allBookedAppointments = fetchAllBookedAppointments();
 
-// Récupération de TOUS les rendez-vous programmés (pour tous les utilisateurs)
-$pdo = getPDO();
-$stmt = $pdo->prepare("SELECT appointment_date, appointment_time FROM appointments WHERE status = 'scheduled'");
-$stmt->execute();
-$allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+function fetchAllBookedAppointments() {
+    $pdo = getPDO();
+    $stmt = $pdo->prepare("SELECT appointment_date, appointment_time FROM appointments WHERE status = 'scheduled'");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 ?>
 
 <body>
     <main>
         <h2>Gérer les rendez-vous</h2>
-        <?php if (isset($message)): ?>
-            <div class="<?php echo isset($result['success']) && $result['success'] ? 'success' : 'error' ?>">
+        <?php if ($message): ?>
+            <div class="<?php echo $result['success'] ? 'success' : 'error' ?>">
                 <?php echo $message; ?>
             </div>
         <?php endif; ?>
@@ -51,7 +52,7 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div id='calendar'></div>
         </section>
 
-        <!-- Section des créneaux disponibles (apparaît après avoir cliqué sur une date) -->
+        <!-- Section des créneaux disponibles -->
         <section id="available-slots">
             <h3>Créneaux</h3>
             <div class="selected-date" id="selected-date"></div>
@@ -91,10 +92,9 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <input type="hidden" id="time-input" name="time">
         <input type="hidden" name="schedule" value="1">
     </form>
-    
+
     <script>
         $(document).ready(function () {
-            // Stockage de tous les créneaux déjà réservés (par tous les utilisateurs)
             const allBookedSlots = {};
 
             <?php foreach ($allBookedAppointments as $appointment): ?>
@@ -104,7 +104,6 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 allBookedSlots['<?php echo $appointment['appointment_date']; ?>'].push('<?php echo $appointment['appointment_time']; ?>');
             <?php endforeach; ?>
 
-            // Initialize FullCalendar
             $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
@@ -119,14 +118,13 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 minTime: '09:00:00',
                 maxTime: '17:00:00',
                 businessHours: {
-                    dow: [1, 2, 3, 4, 5], // Monday - Friday
+                    dow: [1, 2, 3, 4, 5],
                     start: '09:00',
                     end: '17:00',
                     rendering: 'background'
                 },
                 events: [
                     <?php
-                    // Créer un tableau des rendez-vous de l'utilisateur pour faciliter la vérification
                     $userAppointmentTimes = [];
                     foreach ($appointments as $appointment) {
                         if ($appointment['status'] === 'scheduled') {
@@ -136,8 +134,8 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                     ?>
 
-<?php foreach ($appointments as $appointment): ?>
-                <?php if ($appointment['status'] === 'scheduled'): ?>
+                    <?php foreach ($appointments as $appointment): ?>
+                        <?php if ($appointment['status'] === 'scheduled'): ?>
                             {
                                 title: 'Votre RDV',
                                 start: '<?php echo $appointment['appointment_date']; ?>T<?php echo $appointment['appointment_time']; ?>',
@@ -145,14 +143,13 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 color: '#4CAF50'
                             },
                         <?php endif; ?>
-<?php endforeach; ?>
+                    <?php endforeach; ?>
 
-<?php foreach ($allBookedAppointments as $appointment): ?>
-                <?php
-                // Vérifier si ce rendez-vous réservé ne chevauche pas avec un de vos rendez-vous
-                $key = $appointment['appointment_date'] . 'T' . $appointment['appointment_time'];
-                if (!isset($userAppointmentTimes[$key])):
-                    ?>
+                    <?php foreach ($allBookedAppointments as $appointment): ?>
+                        <?php
+                        $key = $appointment['appointment_date'] . 'T' . $appointment['appointment_time'];
+                        if (!isset($userAppointmentTimes[$key])):
+                            ?>
                             {
                                 title: 'Réservé',
                                 start: '<?php echo $appointment['appointment_date']; ?>T<?php echo $appointment['appointment_time']; ?>',
@@ -160,42 +157,26 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 color: '#f44336'
                             },
                         <?php endif; ?>
-<?php endforeach; ?>
+                    <?php endforeach; ?>
                 ],
                 dayClick: function (date, jsEvent, view) {
-                    // Formatter la date pour l'affichage
                     var formattedDate = date.format('YYYY-MM-DD');
                     var displayDate = date.format('dddd D MMMM YYYY');
 
-                    // Afficher la date sélectionnée
                     $('#selected-date').text(displayDate);
-
-                    // Récupérer les créneaux disponibles pour cette date
                     getAvailableSlots(formattedDate);
-
-                    // Afficher la section des créneaux disponibles
                     $('#available-slots').show();
                 }
             });
 
-            // Fonction pour récupérer les créneaux disponibles
             function getAvailableSlots(date) {
-                // Créneaux fixes du matin et de l'après-midi
                 const morningSlots = ['09:00', '10:00', '11:00'];
                 const afternoonSlots = ['13:00', '14:00', '15:00', '16:00', '17:00'];
                 const allSlots = [...morningSlots, ...afternoonSlots];
-
-                // Créneaux déjà réservés pour cette date (par tous les utilisateurs)
                 const bookedSlots = allBookedSlots[date] || [];
-
-                // Vérifier si c'est un jour du week-end (samedi=6, dimanche=0)
                 const dayOfWeek = moment(date).day();
                 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-
-                // Vérifier si c'est une date passée
                 const isPastDate = moment(date).isBefore(moment().startOf('day'));
-
-                // Afficher les créneaux disponibles
                 const slotsContainer = $('#slots-container');
                 slotsContainer.empty();
 
@@ -209,38 +190,26 @@ $allBookedAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     return;
                 }
 
-                // Approche alternative: créer un ensemble de créneaux réservés
                 const bookedSlotsSet = new Set(bookedSlots);
-
-                // Créer l'array des créneaux disponibles
-                const availableSlots = [];
-
-                // Vérifier chaque créneau individuellement
-                for (const slot of allSlots) {
-                    if (!bookedSlotsSet.has(slot)) {
-                        availableSlots.push(slot);
-                    }
-                }
+                const availableSlots = allSlots.filter(slot => !bookedSlotsSet.has(slot));
 
                 if (availableSlots.length === 0) {
                     slotsContainer.append('<p><strong>Tous les créneaux sont réservés pour cette date.</strong></p>');
                     return;
                 }
 
-                // Afficher seulement les créneaux disponibles
                 availableSlots.forEach(slot => {
                     const slotElement = $(`
-            <div class="time-slot">
-                <span>${slot}</span>
-                <button type="button" onclick="bookAppointment('${date}', '${slot}')">Réserver</button>
-            </div>
-        `);
+                        <div class="time-slot">
+                            <span>${slot}</span>
+                            <button type="button" onclick="bookAppointment('${date}', '${slot}')">Réserver</button>
+                        </div>
+                    `);
                     slotsContainer.append(slotElement);
                 });
             }
         });
 
-        // Fonction pour réserver un rendez-vous
         function bookAppointment(date, time) {
             if (confirm('Voulez-vous réserver un rendez-vous le ' + moment(date).format('DD/MM/YYYY') + ' à ' + time + ' ?')) {
                 document.getElementById('date-input').value = date;
