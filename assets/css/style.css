@@ -275,6 +275,66 @@ footer {
     box-shadow: var(--shadow);
 }
 
+#calendar {
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+}
+
+.fc-day-top:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+#available-slots {
+    max-width: 900px;
+    margin: 0 auto;
+    display: none;
+}
+
+.time-slot {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time-slot button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.time-slot button:hover {
+    background-color: #45a049;
+}
+
+.appointment-list {
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.selected-date {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.booked-slot {
+    background-color: #f0f0f0;
+    color: #999;
+}
+
+.booked-slot button {
+    display: none;
+}
+
 @media (max-width: 480px) {
     form {
         margin: 1rem;

@@ -9,7 +9,7 @@ require_once 'getPDO.php';
 function createAppointment($user_email, $date, $time) {
     $pdo = getPDO();
     
-    // Vérifier si le créneau est disponible
+    // Vérifier si le créneau est disponible (pour TOUS les utilisateurs)
     $stmt = $pdo->prepare("SELECT id FROM appointments 
                           WHERE appointment_date = :date 
                           AND appointment_time = :time 
@@ -25,10 +25,14 @@ function createAppointment($user_email, $date, $time) {
     $stmt->execute(['email' => $user_email]);
     $user = $stmt->fetch();
     
+    if (!$user) {
+        return ['success' => false, 'message' => 'Utilisateur non trouvé'];
+    }
+    
     // Créer le rendez-vous
     $stmt = $pdo->prepare("INSERT INTO appointments 
-                          (user_id, appointment_date, appointment_time) 
-                          VALUES (:user_id, :date, :time)");
+                          (user_id, appointment_date, appointment_time, status) 
+                          VALUES (:user_id, :date, :time, 'scheduled')");
     
     $result = $stmt->execute([
         'user_id' => $user['id'],
@@ -81,6 +85,19 @@ function getUserAppointments($user_email) {
                           ORDER BY a.appointment_date DESC, a.appointment_time DESC");
     
     $stmt->execute(['email' => $user_email]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getAllScheduledAppointments() {
+    $pdo = getPDO();
+    
+    // Récupérer tous les rendez-vous programmés (pour tous les utilisateurs)
+    $stmt = $pdo->prepare("SELECT appointment_date, appointment_time 
+                          FROM appointments 
+                          WHERE status = 'scheduled'");
+    
+    $stmt->execute();
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
