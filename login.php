@@ -18,14 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     // Vérifie les informations de connexion
-    if (login($email, $password)) {
+    $loginResult = login($email, $password);
+    if ($loginResult['success']) {
         // Si la connexion est réussie, enregistre le nom d'utilisateur en session et redirige vers le profil
         $_SESSION['email'] = $email;
         header('Location: profile.php');
         exit;
     } else {
         // Si la connexion échoue, affiche un message d'erreur
-        echo "<p>Invalid email or password.</p>";
+        echo "<p>{$loginResult['message']}</p>";
     }
 }
 ?>

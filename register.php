@@ -6,7 +6,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 // Inclut les fonctions nécessaires
 require_once 'functions/getPDO.php';
 require_once 'functions/createUser.php';
@@ -36,17 +35,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($existingUser) {
         // Si l'email existe déjà, affiche un message d'erreur
-        echo "<p>email already exists. Please choose a different email.</p>";
+        echo "<p>Email already exists. Please choose a different email.</p>";
     } else if ($existingPhone) {
         // Si le numéro de téléphone existe déjà, affiche un message d'erreur
         echo "<p>Phone number already exists. Please choose a different phone number.</p>";
     } else {
-        // Crée un nouvel utilisateur
-        if (createUser($first_name, $last_name, $birth_date, $address, $phone, $email, $password)) {
-            // Si l'inscription est réussie, redirige vers la page de connexion avec un message de succès
-            $_SESSION['success_message'] = "Registration successful! Please login.";
-            header('Location: login.php');
-            exit;
+        // Génère un token unique
+        $token = bin2hex(random_bytes(16));
+
+        // Crée un nouvel utilisateur avec le token
+        if (createUser($first_name, $last_name, $birth_date, $address, $phone, $email, $password, $token)) {
+            // Envoie un email de vérification
+            $verificationLink = "http://localhost/~kyas/RESERVATION/verify.php?token=$token";
+            $subject = "Email Verification";
+            $message = "Please click the following link to verify your email: $verificationLink";
+            $headers = "From: no-reply@yourdomain.com";
+
+            if (mail($email, $subject, $message, $headers)) {
+                echo "<p>Registration successful! Please check your email to verify your account.</p>";
+            } else {
+                echo "<p>Error sending verification email.</p>";
+            }
         } else {
             // Si l'inscription échoue, affiche un message d'erreur
             echo "<p>Error during account creation.</p>";
