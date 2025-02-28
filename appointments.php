@@ -116,11 +116,11 @@ function fetchAllBookedAppointments() {
                 eventLimit: true,
                 selectable: true,
                 minTime: '09:00:00',
-                maxTime: '17:00:00',
+                maxTime: '18:00:00',
                 businessHours: {
                     dow: [1, 2, 3, 4, 5],
                     start: '09:00',
-                    end: '17:00',
+                    end: '18:00',
                     rendering: 'background'
                 },
                 events: [
