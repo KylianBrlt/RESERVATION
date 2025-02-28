@@ -11,8 +11,19 @@ require 'header.php';
 require_once 'functions/getPDO.php';
 require_once 'functions/login.php';
 
+// Génère un token CSRF et le stocke dans la session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Gestion de la connexion
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifie le token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<p>Invalid CSRF token.</p>";
+        exit;
+    }
+
     // Récupère et sécurise les données du formulaire
     $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
     $password = $_POST['password'];
@@ -33,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main>
     <h2>Login</h2>
     <form method="POST" action="login.php">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <label for="email">Email :</label>
         <input type="text" id="email" name="email" required>
         <br>
