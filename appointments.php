@@ -191,7 +191,10 @@ function fetchAllBookedAppointments() {
                 }
 
                 const bookedSlotsSet = new Set(bookedSlots);
-                const availableSlots = allSlots.filter(slot => !bookedSlotsSet.has(slot));
+                const availableSlots = allSlots.filter(slot => {
+                    const slotTime = moment(date + ' ' + slot);
+                    return !bookedSlotsSet.has(slot) && slotTime.isAfter(moment());
+                });
 
                 if (availableSlots.length === 0) {
                     slotsContainer.append('<p><strong>Tous les créneaux sont réservés pour cette date.</strong></p>');
