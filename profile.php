@@ -15,6 +15,11 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
+// Génère un token CSRF et le stocke dans la session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Inclut les fonctions nécessaires
 require_once 'functions/getUserInfo.php';
 require_once 'functions/updateUserInfo.php';
@@ -25,6 +30,12 @@ $user = getUserInfo($_SESSION['email']);
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifie le token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<p>Invalid CSRF token.</p>";
+        exit;
+    }
+
     if (isset($_POST['action']) && $_POST['action'] === 'delete_account') {
         $result = deleteAccount($_SESSION['email']);
         if ($result['success']) {
@@ -62,6 +73,7 @@ if ($user) {
         <?php echo $message; ?>
         
         <form method="POST" action="profile.php" class="edit-profile-form">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="form-group">
                 <label for="first_name">First Name:</label>
                 <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
@@ -101,6 +113,7 @@ if ($user) {
             <p class="warning">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
             <form method="POST" action="profile.php" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
                 <input type="hidden" name="action" value="delete_account">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <button type="submit" class="delete-button">Delete Account</button>
             </form>
         </div>
