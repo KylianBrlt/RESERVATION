@@ -10,8 +10,19 @@ error_reporting(E_ALL);
 require_once 'functions/getPDO.php';
 require_once 'functions/createUser.php';
 
+// Génère un token CSRF et le stocke dans la session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Gestion de l'inscription
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifie le token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<p>Invalid CSRF token.</p>";
+        exit;
+    }
+
     // Récupère et sécurise les données du formulaire
     $first_name = htmlspecialchars(trim($_POST['first_name']));
     $last_name = htmlspecialchars(trim($_POST['last_name']));
@@ -66,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main>
     <h2>Register</h2>
     <form method="POST" action="register.php">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <input type="text" name="first_name" placeholder="Prénom" required>
         <input type="text" name="last_name" placeholder="Nom" required>
         <input type="date" name="birth_date" required>
