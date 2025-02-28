@@ -7,7 +7,18 @@ error_reporting(E_ALL);
 // Inclut l'en-tête de la page
 require 'header.php';
 
+// Génère un token CSRF et le stocke dans la session
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Vérifie le token CSRF
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo "<p>Invalid CSRF token.</p>";
+        exit;
+    }
+
     // Collect and sanitize form data
     $name = htmlspecialchars(trim($_POST['name']));
     $email = htmlspecialchars(trim($_POST['email']));
@@ -52,6 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="success"><?php echo $success; ?></div>
     <?php endif; ?>
     <form method="POST" action="contact.php">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-group">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
