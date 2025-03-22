@@ -27,6 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $first_name = htmlspecialchars(trim($_POST['first_name']));
     $last_name = htmlspecialchars(trim($_POST['last_name']));
     $birth_date = htmlspecialchars(trim($_POST['birth_date']));
+
+    // Validate birth date (user must be between 18 and 100 years old)
+    $min_date = date('Y-m-d', strtotime('-100 years'));
+    $max_date = date('Y-m-d', strtotime('-16 years'));
+
+    if ($birth_date > $max_date || $birth_date < $min_date) {
+        echo "<p>Invalid birth date. You must be between 18 and 100 years old.</p>";
+        exit;
+    }
+
     $address = htmlspecialchars(trim($_POST['address']));
     $phone = htmlspecialchars(trim($_POST['phone']));
     $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
