@@ -207,8 +207,9 @@ footer {
     color: #d32f2f;
     text-align: center;
     margin-bottom: 1rem;
-    padding: 10px;
-    background-color: #ffebee;
+    padding: 1rem;
+    background-color: #f2dede;
+    border-left: 4px solid #d9534f;
     border-radius: 4px;
 }
 
@@ -216,8 +217,9 @@ footer {
     color: #388e3c;
     text-align: center;
     margin-bottom: 1rem;
-    padding: 10px;
-    background-color: #e8f5e9;
+    padding: 1rem;
+    background-color: #dff0d8;
+    border-left: 4px solid #5cb85c;
     border-radius: 4px;
 }
 
@@ -276,8 +278,8 @@ footer {
 }
 
 #calendar {
-    max-width: 900px;
-    margin: 0 auto 20px auto;
+max-width: 900px;
+margin: 0 auto 20px auto;
 }
 
 .fc-day-top:hover {
@@ -286,9 +288,9 @@ footer {
 }
 
 #available-slots {
-    max-width: 900px;
-    margin: 0 auto;
-    display: none;
+max-width: 900px;
+margin: 0 auto;
+display: none;
 }
 
 .time-slot {
@@ -335,12 +337,41 @@ footer {
     display: none;
 }
 
+.verification-section {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.verification-result {
+    margin-top: 1.5rem;
+}
+
+.verification-section h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.verification-section a {
+    color: #337ab7;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.verification-section a:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 480px) {
     form {
         margin: 1rem;
         padding: 1rem;
     }
-    
+
     main {
         padding: 1rem;
     }

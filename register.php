@@ -82,7 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 <input type="text" name="first_name" placeholder="Prénom" required>
 <input type="text" name="last_name" placeholder="Nom" required>
-<input type="date" name="birth_date" required>
+<?php
+// Calculate date limits (18-100 years)
+$maxDate = date('Y-m-d', strtotime('-16 years'));
+$minDate = date('Y-m-d', strtotime('-100 years'));
+?>
+<input type="date" name="birth_date" min="<?php echo $minDate; ?>" max="<?php echo $maxDate; ?>" required>
 <input type="text" name="address" placeholder="Adresse postale" required>
 <input type="text" name="phone" placeholder="Numéro de téléphone" required>
 <input type="email" name="email" placeholder="Email" required>
