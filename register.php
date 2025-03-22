@@ -57,7 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Crée un nouvel utilisateur avec le token
         if (createUser($first_name, $last_name, $birth_date, $address, $phone, $email, $password, $token)) {
             // Envoie un email de vérification
-            $verificationLink = "http://localhost/~kyas/RESERVATION/verify.php?token=$token";
+
+            // msmtp
+            $verificationLink = "https://kylianbrlt.com/reservation/verify.php?token=$token";
             $subject = "Email Verification";
             $message = "Please click the following link to verify your email: $verificationLink";
             $headers = "From: no-reply@yourdomain.com";
@@ -75,19 +77,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <main>
-    <h2>Register</h2>
-    <form method="POST" action="register.php">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        <input type="text" name="first_name" placeholder="Prénom" required>
-        <input type="text" name="last_name" placeholder="Nom" required>
-        <input type="date" name="birth_date" required>
-        <input type="text" name="address" placeholder="Adresse postale" required>
-        <input type="text" name="phone" placeholder="Numéro de téléphone" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Mot de passe" required>
-        <button type="submit">S'inscrire</button>
-    </form>
-    <p>Already have an account? <a href="login.php">Login here</a>.</p>
+<h2>Register</h2>
+<form method="POST" action="register.php">
+<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+<input type="text" name="first_name" placeholder="Prénom" required>
+<input type="text" name="last_name" placeholder="Nom" required>
+<input type="date" name="birth_date" required>
+<input type="text" name="address" placeholder="Adresse postale" required>
+<input type="text" name="phone" placeholder="Numéro de téléphone" required>
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Mot de passe" required>
+<button type="submit">S'inscrire</button>
+</form>
+<p>Already have an account? <a href="login.php">Login here</a>.</p>
 </main>
 
 <?php
